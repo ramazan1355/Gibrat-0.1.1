@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT — AI Education Platform</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+    
+    <style>
+        /* =========================
+           GIBRAT — Integrated Design
+           ========================= */
+        :root {
+            --bg: #050306;
+            --panel: #0b0b10;
+            --muted: #9aa0a6;
+            --accent1: #6e3df2;
+            --accent2: #2b0bb0;
+            --glass: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            --soft-shadow: 0 12px 30px rgba(16,8,40,0.45);
+            --radius: 18px;
+            --phone-w: 360px;
+            --phone-h: 720px;
+            --ease: cubic-bezier(.15,.9,.35,1);
+        }
+
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #eef0ff;
+            background: linear-gradient(180deg,#020205 0%, var(--bg) 100%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        /* Phone shell */
+        .phone {
+            width: var(--phone-w);
+            height: var(--phone-h);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(180deg,#040204 0%, #09080c 100%);
+            box-shadow: 0 30px 80px rgba(10,7,20,0.75), inset 0 1px 0 rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            transform: translateZ(0);
+        }
+
+        /* subtle entrance for the whole phone */
+        .phone { 
+            opacity: 0; 
+            transform: translateY(8px) scale(0.997); 
+            animation: phoneIn .6s var(--ease) forwards; 
+        }
+        @keyframes phoneIn { 
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            } 
+        }
+
+        /* Notch */
+        .phone::before {
+            content: "";
+            position: absolute;
+            left: calc(50% - 36px);
+            top: 12px;
+            width: 72px;
+            height: 6px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+        }
+
+        /* Screen */
+        .screen {
+            flex: 1;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: stretch;
+            overflow: hidden;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 4px;
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .small-muted {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* decorative blobs (soft blurred) */
+        .decor-top {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 72px;
+            pointer-events: none;
+            opacity: 0.62;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(30px);
+            transform: translateZ(0);
+            will-change: transform, opacity;
+        }
+
+        .blob.a {
+            width: 140px;
+            height: 300px;
+            left: 16px;
+            top: -40px;
+            background: radial-gradient(circle at 30% 30%, rgba(80,30,170,0.95), rgba(20,8,70,0.45));
+        }
+
+        .blob.b {
+            width: 100px;
+            height: 180px;
+            left: 120px;
+            top: -10px;
+            background: radial-gradient(circle at 50% 30%, rgba(40,18,120,0.95), rgba(12,6,60,0.45));
+        }
+
+        .blob.c {
+            width: 300px;
+            height: 120px;
+            left: 30px;
+            bottom: 26px;
+            background: radial-gradient(circle at 50% 30%, rgba(20,10,90,0.9), rgba(8,4,40,0.4));
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 14px;
+        }
+
+        .nav button {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 250ms var(--ease);
+            transform-origin: center;
+            outline: none;
+        }
+
+        .nav button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(60,18,140,0.12);
+            color: #fff;
+        }
+
+        .nav button.active {
+            background: linear-gradient(90deg,var(--accent1),var(--accent2));
+            color: #fff;
+            box-shadow: 0 16px 40px rgba(80,30,160,0.22);
+            transform: translateY(-2px);
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow: auto;
+            padding-right: 6px;
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        .view.active {
+            display: flex;
+            animation: viewIn .5s var(--ease) forwards;
+        }
+
+        @keyframes viewIn { 
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            } 
+        }
+
+        /* Card */
+        .card {
+            background: var(--glass);
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: var(--soft-shadow);
+            transition: transform 280ms var(--ease), box-shadow 280ms var(--ease);
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.003);
+            box-shadow: 0 28px 60px rgba(16,8,60,0.45);
+        }
+
+        /* Hero */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-top: 6px;
+        }
+
+        .avatar-hero {
+            width: 170px;
+            height: 150px;
+            border-radius: 26px;
+            background: radial-gradient(circle at 40% 30%, rgba(90,40,180,0.96), rgba(18,8,70,0.44));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 18px 44px rgba(40,12,120,0.42);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* soft avatar pulse */
+        .avatar-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 26px;
+            box-shadow: 0 0 48px rgba(110,61,242,0.12);
+            opacity: 0;
+            transition: opacity 400ms var(--ease);
+        }
+
+        .avatar-hero:hover::after {
+            opacity: 1;
+        }
+
+        .avatar-hero svg {
+            width: 128px;
+            height: 128px;
+            transform: translateY(-6px);
+        }
+
+        /* greeting */
+        .greet {
+            font-size: 14px;
+            color: #f4f2ff;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(80,30,160,0.06);
+        }
+
+        /* profile row */
+        .profile-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .progress-ring {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent1) 0% 65%, rgba(255,255,255,0.03) 65% 100%);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(30,10,90,0.12);
+        }
+
+        /* lessons grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .lesson-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 96px;
+            transition: transform 320ms var(--ease), box-shadow 320ms var(--ease);
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 26px 60px rgba(30,10,90,0.12);
+        }
+
+        /* chat */
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 380px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow: auto;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            max-width: 78%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            transition: transform 240ms var(--ease);
+            will-change: transform;
+        }
+
+        .msg.ai {
+            background: linear-gradient(180deg,#2a0b6c,#1b073f);
+            align-self: flex-start;
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(40,8,120,0.18);
+        }
+
+        .msg.user {
+            background: rgba(255,255,255,0.03);
+            align-self: flex-end;
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+        }
+
+        /* input & buttons */
+        .input {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+            background: transparent;
+            color: #fff;
+            outline: none;
+            transition: box-shadow 200ms var(--ease);
+        }
+
+        .input:focus {
+            box-shadow: 0 8px 30px rgba(110,61,242,0.12);
+            border-color: rgba(110,61,242,0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg,var(--accent1),var(--accent2));
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: none;
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 12px 26px rgba(110,61,242,0.18);
+            transition: transform 260ms var(--ease), box-shadow 260ms var(--ease), filter 260ms var(--ease);
+            outline: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-6px) scale(1.02);
+            filter: brightness(1.03);
+            box-shadow: 0 22px 50px rgba(110,61,242,0.22);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-2px) scale(0.995);
+            box-shadow: 0 10px 22px rgba(110,61,242,0.14);
+        }
+
+        /* soft micro-interaction for link-like buttons */
+        .linkish {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: color 180ms var(--ease), transform 200ms var(--ease);
+        }
+
+        .linkish:hover {
+            color: #fff;
+            transform: translateY(-4px);
+        }
+
+        /* generation circle */
+        .gen-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 30%, rgba(80,30,170,0.95), rgba(10,6,30,0.6));
+            display: grid;
+            place-items: center;
+            box-shadow: 0 18px 44px rgba(40,12,120,0.42);
+            animation: softPulse 3.2s var(--ease) infinite;
+        }
+
+        @keyframes softPulse {
+            0% { transform: scale(0.99); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(0.99); }
+        }
+
+        /* small badges & lists */
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge {
+            background: linear-gradient(90deg,#ffd77a,#ff9a6b);
+            padding: 6px 10px;
+            border-radius: 12px;
+            color: #0b0610;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* footer */
+        .footer {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        /* Auth styles */
+        .auth-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 3, 6, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            padding: 24px;
+            width: 320px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* accessibility focus styles */
+        button:focus, input:focus {
+            box-shadow: 0 8px 30px rgba(110,61,242,0.12);
+            outline: none;
+            border-color: rgba(110,61,242,0.5);
+        }
+
+        /* responsive tweaks */
+        @media (max-width: 920px) {
+            .container {
+                transform: scale(0.95);
+            }
+        }
+
+        @media (max-width: 420px) {
+            :root {
+                --phone-w: 360px;
+                --phone-h: 760px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="phone" role="application" aria-label="GIBRAT Mobile UI — Smooth">
+            <div class="decor-top" aria-hidden="true">
+                <div class="blob a"></div>
+                <div class="blob b"></div>
+                <div class="blob c"></div>
+            </div>
+
+            <div class="screen">
+                <!-- Topbar -->
+                <div class="topbar">
+                    <div class="brand">GIBRAT</div>
+                    <div class="small-muted" id="time">--:--</div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav card" role="navigation" aria-label="Main navigation">
+                    <button class="nav-btn active" data-view="dashboard" aria-pressed="true" title="Home">Home</button>
+                    <button class="nav-btn" data-view="lessons" title="Lessons">Lessons</button>
+                    <button class="nav-btn" data-view="chatAvatar" title="Chat with Avatar">Chat</button>
+                    <button class="nav-btn" data-view="curator" title="Curator">Curator</button>
+                    <button class="nav-btn" data-view="profile" title="Profile">Profile</button>
+                </div>
+
+                <!-- VIEWS -->
+                <section id="dashboard" class="view active" aria-labelledby="home">
+                    <div class="hero card" role="region" aria-label="Dashboard">
+                        <div class="avatar-hero" aria-hidden="true" title="Professor Avatar">
+                            <!-- friendly svg avatar (decorative) -->
+                            <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <circle cx="128" cy="104" r="44" fill="#ffd9a6"/>
+                                <g fill="#e8eef8">
+                                    <path d="M84 80c-12-8-28-6-34 10 12-22 38-22 34-10z"/>
+                                    <path d="M172 78c12-8 28-6 34 10-12-22-38-22-34-10z"/>
+                                    <path d="M128 28c-18 6-30 22-22 30 10-14 34-18 46-10-8-10-14-20-24-20z"/>
+                                </g>
+                                <path d="M116 118c8 6 20 6 30 0" stroke="#5b4a39" stroke-width="6" stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </div>
+
+                        <div class="greet">Привет, <strong id="userName">Гость</strong>! Добро пожаловать в GIBRAT.</div>
+
+                        <div class="card profile-row" style="width:100%; justify-content:space-between">
+                            <div style="display:flex;gap:12px;align-items:center">
+                                <div class="progress-ring">0%</div>
+                                <div>
+                                    <div style="font-weight:800">Ученик — 7 класс</div>
+                                    <div class="small-muted">Прогресс недели: 0/5 уроков</div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                                <div class="small-muted">Рейтинг</div>
+                                <div style="font-weight:800">#--</div>
+                                <div class="badge">Top 0%</div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="width:100%">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                                <div style="font-weight:800">Продолжить урок</div>
+                                <div class="small-muted">Требуется просмотр 90%</div>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:center">
+                                <div style="flex:1">
+                                    <div style="font-size:14px;font-weight:800">E = mc² — Energy & Mass</div>
+                                    <div class="small-muted" style="margin-top:6px">Professor Avatar • 12 min</div>
+                                </div>
+                                <div>
+                                    <button class="btn-primary" onclick="openLesson('lesson-emc')">Open</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:10px;width:100%;justify-content:space-between">
+                            <div class="card" style="flex:1">
+                                <div style="font-weight:700;margin-bottom:6px">Дедлайны</div>
+                                <div class="small-muted">Домашнее задание по физике — завтра</div>
+                            </div>
+                            <div class="card" style="width:120px;text-align:center;">
+                                <div style="font-weight:700">Награды</div>
+                                <div class="small-muted">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" role="region" aria-label="News and facts">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                            <div style="font-weight:800">Новости и факты</div>
+                            <div class="small-muted">Обновлено ИИ</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                            <div class="row">
+                                <div style="flex:1">Факт: скорость света ~ 3×10^8 м/с</div>
+                                <div class="small-muted">Physics</div>
+                            </div>
+                            <div class="row">
+                                <div style="flex:1">Совет: повторяй формулы через 24 часа</div>
+                                <div class="small-muted">Study</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="lessons" class="view card" aria-labelledby="lessons">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div style="font-weight:800">Уроки</div>
+                        <div class="small-muted">Найди свой курс</div>
+                    </div>
+
+                    <div class="grid" style="margin-top:10px">
+                        <div class="lesson-card" role="article" aria-label="Lesson E=mc2">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div class="title" style="font-weight:800">E = mc²</div>
+                                    <div class="small-muted">Physics • Professor Einstein</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px">
+                                    <button class="btn-primary" onclick="openLesson('lesson-emc')">Watch</button>
+                                    <button class="linkish" onclick="openTest('test-emc')">Quiz</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-card" role="article" aria-label="Lesson Newton">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div class="title" style="font-weight:800">Newton's Laws</div>
+                                    <div class="small-muted">Mechanics • Professor Newton</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px">
+                                    <button class="btn-primary" onclick="openLesson('lesson-newton')">Watch</button>
+                                    <button class="linkish" onclick="openTest('test-newton')">Quiz</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-card" role="article" aria-label="Lesson Tesla">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div class="title" style="font-weight:800">Circuits & Electricity</div>
+                                    <div class="small-muted">Electro • Professor Tesla</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px">
+                                    <button class="btn-primary" onclick="openLesson('lesson-tesla')">Watch</button>
+                                    <button class="linkish">Quiz</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-card" role="article" aria-label="Lesson Curie">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div class="title" style="font-weight:800">Simple Chemistry</div>
+                                    <div class="small-muted">Chemistry • Professor Curie</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:8px">
+                                    <button class="btn-primary" onclick="openLesson('lesson-curie')">Watch</button>
+                                    <button class="linkish">Quiz</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="chatAvatar" class="view card" aria-labelledby="chatAvatar">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-weight:800">Чат с аватаром <span id="avatarName">Einstein</span></div>
+                        <div class="small-muted">Адаптивные объяснения</div>
+                    </div>
+
+                    <div class="chat-window">
+                        <div class="messages" id="avatarMessages" aria-live="polite">
+                            <div class="msg ai">Привет! Спроси меня о формуле или попроси объяснить на твоём уровне.</div>
+                        </div>
+
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <input id="msgInput" class="input" placeholder="Например: Объясни E=mc² на 7 классе..." aria-label="Message input"/>
+                            <button class="btn-primary" id="sendMsg">Send</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;margin-top:8px">
+                        <div class="small-muted">Видео и мини-тесты доступны в уроке</div>
+                        <div><button class="linkish" onclick="openLesson('lesson-emc')">Открыть урок</button></div>
+                    </div>
+                </section>
+
+                <section id="curator" class="view card" aria-labelledby="curator">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-weight:800">ИИ Куратор</div>
+                        <div class="small-muted">Персональный план</div>
+                    </div>
+
+                    <div style="margin-top:8px;display:flex;gap:10px">
+                        <div style="flex:1" class="card">
+                            <div style="font-weight:800">Индивидуальный план</div>
+                            <div class="small-muted" style="margin-top:6px">3 шага для улучшения по физике</div>
+                            <ol style="margin-top:8px">
+                                <li>Пересмотреть E=mc² (видео + quiz)</li>
+                                <li>Решение задач — 5 примеров</li>
+                                <li>Контрольный тест через 7 дней</li>
+                            </ol>
+                        </div>
+
+                        <div style="width:120px" class="card center">
+                            <div style="text-align:center">
+                                <div style="font-weight:800">Псих. поддержка</div>
+                                <div class="small-muted" style="margin-top:6px">Мотивационные подсказки</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:8px" class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div style="font-weight:800">История прогресса</div>
+                            <div class="small-muted">Неделя / Месяц / Год</div>
+                        </div>
+                        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;justify-content:space-around">
+                            <div style="text-align:center"><div style="font-weight:800">0</div><div class="small-muted">Урока</div></div>
+                            <div style="text-align:center"><div style="font-weight:800">0%</div><div class="small-muted">Усвоение</div></div>
+                            <div style="text-align:center"><div style="font-weight:800">0</div><div class="small-muted">Награды</div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="profile" class="view card" aria-labelledby="profile">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-weight:800">Профиль</div>
+                        <div class="small-muted">Настройки аккаунта</div>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:8px">
+                        <div style="width:86px;height:86px;border-radius:16px;background:radial-gradient(circle at 30% 30%, rgba(60,20,150,0.95),rgba(10,6,40,0.6));display:grid;place-items:center;font-weight:800" id="profileAvatar">G</div>
+                        <div style="flex:1">
+                            <div style="font-weight:800" id="pname">Гость</div>
+                            <div class="small-muted" id="profileInfo">Войдите в аккаунт</div>
+                            <div style="margin-top:8px;display:flex;gap:8px">
+                                <button class="btn-primary" onclick="showAuth()">Войти</button>
+                                <button class="linkish" onclick="showAuth()">Регистрация</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:10px" class="card">
+                        <div style="font-weight:800;margin-bottom:8px">Зал наград</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap" id="badgesContainer">
+                            <div class="badge">Early Finisher</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:8px" class="card">
+                        <div style="font-weight:800;margin-bottom:8px">Рейтинг</div>
+                        <div class="small-muted">Город • Область • Республика</div>
+                    </div>
+                </section>
+
+                <!-- Lesson view (hidden until opened) -->
+                <section id="lessonView" class="view card" aria-labelledby="lessonView">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-weight:800" id="lessonTitle">Lesson</div>
+                        <div class="small-muted">Watch and test</div>
+                    </div>
+                    <div style="margin-top:8px;background:linear-gradient(90deg,#0b0b20,#04040a);height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted)">
+                        <div style="text-align:center">
+                            <div style="font-weight:800" id="videoLabel">AI Generated Video</div>
+                            <div class="small-muted" style="margin-top:6px">Demo placeholder (replace with actual player)</div>
+                            <div style="margin-top:12px">
+                                <button class="btn-primary" onclick="simulateWatch()">Watch (simulate)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px">
+                        <div style="font-weight:800">Mini-test (unlock at 90% watch)</div>
+                        <div class="small-muted">3 questions</div>
+                        <div style="margin-top:8px">
+                            <button class="btn-primary" onclick="openTest('test-emc')">Open Mini-Test</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="testView" class="view card" aria-labelledby="testView">
+                    <div style="font-weight:800">Тест: <span id="testTitle">-</span></div>
+                    <div style="margin-top:8px" id="testContent"></div>
+                    <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;">
+                        <button class="btn-primary" onclick="submitTest()">Submit</button>
+                    </div>
+                </section>
+
+                <section id="aiGen" class="view card" aria-labelledby="aiGen">
+                    <div style="font-weight:800">GIBRAT AI — Генерация документа</div>
+                    <div class="small-muted">Собирает уроки, заметки и примеры в PDF</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:16px">
+                        <div class="gen-circle" id="genAnim"><div style="color:#fff;font-weight:800">G</div></div>
+                        <div class="small-muted" id="genStatus">Статус: idle</div>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn-primary" onclick="startGeneration()">Start</button>
+                            <button class="linkish" onclick="stopGeneration()">Stop</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- footer -->
+                <div class="footer card">Дизайн: GIBRAT — плавные анимации • Блок-схема: реализовано (Auth, Profile, Lessons, Curator, Chats, Tasks, Rating, AI Gen)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Overlay -->
+    <div id="authOverlay" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+            
+            <div id="loginForm" class="auth-form active">
+                <div style="margin-bottom: 16px;">
+                    <input type="email" id="loginEmail" class="input" placeholder="Email" style="width: 100%; margin-bottom: 12px;">
+                    <input type="password" id="loginPassword" class="input" placeholder="Пароль" style="width: 100%;">
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="login()">Войти</button>
+            </div>
+            
+            <div id="registerForm" class="auth-form">
+                <div style="margin-bottom: 16px;">
+                    <input type="text" id="registerName" class="input" placeholder="Имя" style="width: 100%; margin-bottom: 12px;">
+                    <input type="email" id="registerEmail" class="input" placeholder="Email" style="width: 100%; margin-bottom: 12px;">
+                    <input type="password" id="registerPassword" class="input" placeholder="Пароль" style="width: 100%;">
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="register()">Зарегистрироваться</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 16px;">
+                <button class="linkish" onclick="hideAuth()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================
+        // Firebase Configuration
+        // =========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHiJGBblt50bodP2lNNXaEF_2yZNIW41I",
+            authDomain: "gibrat-11ab2.firebaseapp.com",
+            projectId: "gibrat-11ab2",
+            storageBucket: "gibrat-11ab2.firebasestorage.app",
+            messagingSenderId: "163636473117",
+            appId: "1:163636473117:web:d6bc1f77ddbcaeda92c5f4",
+            measurementId: "G-Y5L4WQME3Y"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // =========================
+        // App State and Variables
+        // =========================
+        let currentUser = null;
+        let userData = {
+            name: 'Гость',
+            progress: 0,
+            rewards: 0,
+            grade: 7
+        };
+
+        // =========================
+        // DOM Elements
+        // =========================
+        const views = document.querySelectorAll('.view');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const timeEl = document.getElementById('time');
+        const userNameEl = document.getElementById('userName');
+        const pNameEl = document.getElementById('pname');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileInfo = document.getElementById('profileInfo');
+        const avatarNameEl = document.getElementById('avatarName');
+        const avatarMessages = document.getElementById('avatarMessages');
+        const sendMsg = document.getElementById('sendMsg');
+        const msgInput = document.getElementById('msgInput');
+        const authOverlay = document.getElementById('authOverlay');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authForms = document.querySelectorAll('.auth-form');
+
+        // =========================
+        // Utility Functions
+        // =========================
+        function updateTime() { 
+            timeEl.textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); 
+        }
+        updateTime(); 
+        setInterval(updateTime, 60000);
+
+        function showView(id) {
+            views.forEach(v => v.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+            navBtns.forEach(b => b.setAttribute('aria-pressed', b.dataset.view === id ? 'true' : 'false'));
+            document.querySelector('.screen').scrollTop = 0;
+        }
+
+        function showToast(text) {
+            const t = document.createElement('div');
+            t.textContent = text;
+            t.style.position = 'fixed';
+            t.style.left = '50%';
+            t.style.bottom = '28px';
+            t.style.transform = 'translateX(-50%)';
+            t.style.background = 'linear-gradient(90deg,var(--accent1),var(--accent2))';
+            t.style.color = '#fff';
+            t.style.padding = '10px 16px';
+            t.style.borderRadius = '12px';
+            t.style.boxShadow = '0 12px 34px rgba(80,30,160,0.18)';
+            t.style.zIndex = 9999;
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 300ms var(--ease), transform 300ms var(--ease)';
+            document.body.appendChild(t);
+            
+            requestAnimationFrame(() => { 
+                t.style.opacity = '1'; 
+                t.style.transform = 'translateX(-50%) translateY(-6px)'; 
+            });
+            
+            setTimeout(() => { 
+                t.style.opacity = '0'; 
+                t.style.transform = 'translateX(-50%) translateY(0)'; 
+                setTimeout(() => t.remove(), 350); 
+            }, 2200);
+        }
+
+        // =========================
+        // Navigation
+        // =========================
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const target = btn.dataset.view;
+                showView(target);
+            });
+        });
+
+        // =========================
+        // Authentication
+        // =========================
+        function showAuth() {
+            authOverlay.style.display = 'flex';
+        }
+
+        function hideAuth() {
+            authOverlay.style.display = 'none';
+        }
+
+        // Auth tabs switching
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                authForms.forEach(form => form.classList.remove('active'));
+                document.getElementById(`${tabName}Form`).classList.add('active');
+            });
+        });
+
+        // Register function
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !password) {
+                showToast('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save user profile to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    progress: 0,
+                    rewards: 0,
+                    grade: 7
+                });
+                
+                showToast('Регистрация успешна!');
+                hideAuth();
+            } catch (error) {
+                console.error('Registration error:', error);
+                showToast('Ошибка регистрации: ' + error.message);
+            }
+        }
+
+        // Login function
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showToast('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Вход выполнен успешно!');
+                hideAuth();
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Ошибка входа: ' + error.message);
+            }
+        }
+
+        // Logout function
+        function logout() {
+            auth.signOut();
+            showToast('Вы вышли из системы');
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        userData = userDoc.data();
+                    }
+                    
+                    // Update UI with user data
+                    userNameEl.textContent = userData.name;
+                    pNameEl.textContent = userData.name;
+                    profileAvatar.textContent = userData.name.charAt(0).toUpperCase();
+                    profileInfo.textContent = `${userData.grade} класс • ${user.email}`;
+                    
+                    // Update progress and rewards
+                    document.querySelector('.progress-ring').textContent = `${userData.progress}%`;
+                    document.querySelector('.progress-ring').style.background = `conic-gradient(var(--accent1) 0% ${userData.progress}%, rgba(255,255,255,0.03) ${userData.progress}% 100%)`;
+                    
+                    // Update profile buttons
+                    const profileButtons = document.querySelector('#profile .card:last-child div');
+                    profileButtons.innerHTML = `
+                        <button class="btn-primary" onclick="editProfile()">Редактировать</button>
+                        <button class="linkish" onclick="logout()">Выйти</button>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            } else {
+                // User is signed out
+                userData = {
+                    name: 'Гость',
+                    progress: 0,
+                    rewards: 0,
+                    grade: 7
+                };
+                
+                // Reset UI to guest state
+                userNameEl.textContent = 'Гость';
+                pNameEl.textContent = 'Гость';
+                profileAvatar.textContent = 'G';
+                profileInfo.textContent = 'Войдите в аккаунт';
+                
+                document.querySelector('.progress-ring').textContent = '0%';
+                document.querySelector('.progress-ring').style.background = `conic-gradient(var(--accent1) 0% 0%, rgba(255,255,255,0.03) 0% 100%)`;
+                
+                // Reset profile buttons
+                const profileButtons = document.querySelector('#profile .card:last-child div');
+                profileButtons.innerHTML = `
+                    <button class="btn-primary" onclick="showAuth()">Войти</button>
+                    <button class="linkish" onclick="showAuth()">Регистрация</button>
+                `;
+            }
+        });
+
+        // =========================
+        // Chat Functionality
+        // =========================
+        sendMsg.addEventListener('click', () => sendChat());
+        msgInput.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') sendChat(); 
+        });
+
+        function sendChat() {
+            const text = msgInput.value.trim();
+            if (!text) return;
+            
+            addMsg(text, 'user', avatarMessages);
+            msgInput.value = '';
+            
+            // Simulate AI typing
+            const typing = document.createElement('div');
+            typing.className = 'msg ai';
+            typing.textContent = '...';
+            avatarMessages.appendChild(typing);
+            avatarMessages.scrollTop = avatarMessages.scrollHeight;
+            
+            setTimeout(() => {
+                typing.remove();
+                addMsg(simulatedAiReply(text), 'ai', avatarMessages);
+                
+                // Save to Firestore if user is logged in
+                if (currentUser) {
+                    saveChatMessage(text, 'user');
+                    saveChatMessage(simulatedAiReply(text), 'ai');
+                }
+            }, 700 + Math.random() * 600);
+        }
+
+        function addMsg(text, who, container) {
+            const d = document.createElement('div');
+            d.className = 'msg ' + (who === 'ai' ? 'ai' : 'user');
+            d.textContent = text;
+            container.appendChild(d);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function simulatedAiReply(text) {
+            const t = text.toLowerCase();
+            if (t.includes('e=') || t.includes('e=mc') || t.includes('эн') || t.includes('энерг')) {
+                if (t.match(/\b[1-6]\b/)) return 'E=mc² объясняю просто: E — энергия, m — масса, c — скорость света. Маленькая масса × очень большое c² = большое количество энергии.';
+                return 'E=mc² показывает отношение массы и энергии. Хочешь пример с числами?';
+            }
+            if (t.includes('помоги') || t.includes('не понимаю') || t.includes('сложно')) return 'Не переживай — разобьем задачу на шаги и пройдем их вместе. С чего начнем?';
+            if (t.includes('привет')) return 'Привет! Я профессор-аватар. Спроси меня о формуле или теме.';
+            return 'Отличный вопрос! Я могу объяснить по шагам или показать пример. Как предпочитаешь?';
+        }
+
+        async function saveChatMessage(text, sender) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('chats').add({
+                    userId: currentUser.uid,
+                    text: text,
+                    sender: sender,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: 'physics' // Default subject for now
+                });
+            } catch (error) {
+                console.error('Error saving chat message:', error);
+            }
+        }
+
+        // =========================
+        // Lesson & Test Functions
+        // =========================
+        function openLesson(key) {
+            const titles = {
+                'lesson-emc': 'E = mc² — Energy & Mass',
+                'lesson-newton': 'Newton\'s Laws',
+                'lesson-tesla': 'Circuits & Electricity',
+                'lesson-curie': 'Simple Chemistry',
+                'lesson-quantum': 'E = mc² — Energy & Mass (continue)'
+            };
+            const title = titles[key] || 'Lesson';
+            document.getElementById('lessonTitle').textContent = title;
+            document.getElementById('videoLabel').textContent = title;
+            showView('lessonView');
+        }
+
+        function simulateWatch() {
+            const btn = document.querySelector('#lessonView .btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Watching...';
+            let progress = 0;
+            const t = setInterval(() => {
+                progress += 8;
+                if (progress >= 92) {
+                    clearInterval(t);
+                    btn.disabled = false;
+                    btn.textContent = 'Watch (simulate)';
+                    showToast('Видео просмотрено: 92% — мини-тест разблокирован.');
+                }
+            }, 400);
+        }
+
+        // Tests data
+        const tests = {
+            'test-emc': {
+                title: 'E=mc² — mini quiz',
+                questions: [
+                    {q: 'Что означает E в формуле E=mc²?', a: ['Энергия','Масса','Скорость'], correct: 0},
+                    {q: 'Что такое c в формуле?', a: ['Скорость света','Скорость звука','Скорость ракеты'], correct: 0},
+                    {q: 'Если масса увеличивается, энергия...', a: ['увеличивается','уменьшается','не меняется'], correct: 0}
+                ]
+            },
+            'test-newton': {
+                title: 'Newton — quiz', 
+                questions: [
+                    {q: 'Закон инерции говорит...', a: ['об сохранении скорости','о действии равного противодействию','о сохранении массы'], correct: 0}
+                ]
+            }
+        };
+
+        function openTest(key) {
+            const t = tests[key];
+            if (!t) { 
+                showToast('Тест не найден'); 
+                return; 
+            }
+            document.getElementById('testTitle').textContent = t.title;
+            const container = document.getElementById('testContent');
+            container.innerHTML = '';
+            t.questions.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.style.marginBottom = '8px';
+                div.innerHTML = `<div style="font-weight:700">Q${idx+1}: ${item.q}</div>`;
+                item.a.forEach((opt, i) => {
+                    const id = 'q'+idx+'o'+i;
+                    const html = `<label style="display:block;margin-top:8px"><input type="radio" name="q${idx}" value="${i}" id="${id}" /> ${opt}</label>`;
+                    div.insertAdjacentHTML('beforeend', html);
+                });
+                container.appendChild(div);
+            });
+            showView('testView');
+        }
+
+        function submitTest() {
+            const testTitle = document.getElementById('testTitle').textContent;
+            let score = 0;
+            let total = 0;
+            
+            // Simple scoring for demo
+            document.querySelectorAll('input[type="radio"]:checked').forEach(() => {
+                score++;
+            });
+            
+            document.querySelectorAll('.card').forEach(() => {
+                total++;
+            });
+            
+            showToast(`Тест завершен — правильных: ${score} из ${total}`);
+            
+            // Update user progress if logged in
+            if (currentUser && score > 0) {
+                updateUserProgress(score * 10); // 10% per correct answer
+            }
+            
+            showView('dashboard');
+        }
+
+        async function updateUserProgress(increment) {
+            if (!currentUser) return;
+            
+            try {
+                const newProgress = Math.min(100, userData.progress + increment);
+                await db.collection('users').doc(currentUser.uid).update({
+                    progress: newProgress
+                });
+                
+                userData.progress = newProgress;
+                document.querySelector('.progress-ring').textContent = `${userData.progress}%`;
+                document.querySelector('.progress-ring').style.background = `conic-gradient(var(--accent1) 0% ${userData.progress}%, rgba(255,255,255,0.03) ${userData.progress}% 100%)`;
+            } catch (error) {
+                console.error('Error updating progress:', error);
+            }
+        }
+
+        // =========================
+        // AI Generation Functions
+        // =========================
+        let genTimer = null;
+        
+        function startGeneration() {
+            if (genTimer) return;
+            const s = document.getElementById('genStatus');
+            s.textContent = 'Статус: инициализация...';
+            let step = 0;
+            genTimer = setInterval(() => {
+                step++;
+                if (step === 1) s.textContent = 'Статус: собираю заметки';
+                else if (step === 2) s.textContent = 'Статус: генерирую видео-превью';
+                else if (step === 3) s.textContent = 'Статус: компилирую документ';
+                else if (step === 4) { 
+                    s.textContent = 'Статус: завершено — документ готов'; 
+                    clearInterval(genTimer); 
+                    genTimer = null; 
+                    showToast('Документ готов (demo)'); 
+                }
+            }, 900);
+        }
+        
+        function stopGeneration() { 
+            if (genTimer) { 
+                clearInterval(genTimer); 
+                genTimer = null; 
+                document.getElementById('genStatus').textContent = 'Статус: остановлено'; 
+            } else {
+                document.getElementById('genStatus').textContent = 'Статус: idle'; 
+            }
+        }
+
+        // =========================
+        // Profile Functions
+        // =========================
+        function editProfile() {
+            if (!currentUser) {
+                showAuth();
+                return;
+            }
+            
+            const newName = prompt('Введите имя', userData.name);
+            if (newName) {
+                // Update in Firestore
+                db.collection('users').doc(currentUser.uid).update({
+                    name: newName
+                }).then(() => {
+                    userData.name = newName;
+                    userNameEl.textContent = userData.name;
+                    pNameEl.textContent = userData.name;
+                    profileAvatar.textContent = userData.name.charAt(0).toUpperCase();
+                    showToast('Имя сохранено');
+                }).catch(error => {
+                    console.error('Error updating profile:', error);
+                    showToast('Ошибка сохранения');
+                });
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('GIBRAT app initialized');
+        });
+    </script>
+</body>
+</html>
