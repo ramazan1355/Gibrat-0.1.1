@@ -13,11 +13,27 @@
         </header>
 
         <main class="dashboard-content">
-            <h2 class="news-title">Today's news</h2>
+            <div class="avatar-container">
+                <img src="avatar.png" alt="AI Avatar" class="avatar-image">
+            </div>
             
-            <div class="news-card">
+            <div class="chat-box">
+                <div class="messages" id="messages">
+                    <div class="message bot-message">
+                        <p>Привет! Я твой ИИ наставник. Как дела? 👋</p>
+                    </div>
                 </div>
-            
+                
+                <div class="input-area">
+                    <input type="text" id="userInput" placeholder="Напиши сообщение..." class="message-input">
+                    <button id="sendBtn" class="send-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
             </main>
     </div>
 
@@ -66,6 +82,44 @@
                 e.preventDefault();
                 window.location.href = link.getAttribute('href');
             });
+        });
+
+        // Функция отправки сообщения
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesContainer = document.getElementById('messages');
+
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = `<p>${text}</p>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            userInput.value = '';
+
+            // Симуляция ответа от бота
+            setTimeout(() => {
+                const responses = [
+                    'Интересно! Расскажи мне больше 😊',
+                    'Я понял. Как я могу помочь? 🤔',
+                    'Супер! Давай продолжим 💡',
+                    'Это хороший вопрос! 🎓'
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(randomResponse, false);
+            }, 500);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
         });
     </script>
 </body>
