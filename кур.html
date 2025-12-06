@@ -3,70 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIBRAT - Главная</title>
-    <link rel="stylesheet" href="home.css"> 
-    </head>
+    <title>GIBRAT - Меню курса</title>
+    <link rel="stylesheet" href="кур.css"> 
+</head>
 <body>
-    <div class="container dashboard-container">
+    <div class="container dashboard-container"> 
         <header class="header">
             <h1 class="logo">GIBRAT</h1>
         </header>
 
-        <main class="dashboard-content">
-            <h2 class="news-title">Today's news</h2>
-            
-            <div class="news-card">
-                </div>
-            
-            </main>
+        <main class="content course-menu-content">
+            <div class="actions course-actions">
+                <a href="#" class="btn course-btn gradient-blue-1">план обучение</a>
+                <a href="мчат.html" class="btn course-btn gradient-blue-2">ментор</a>
+                <a href="#" class="btn course-btn gradient-blue-3">задание</a>
+            </div>
+        </main>
     </div>
 
-    <nav class="tab-bar" id="main-nav">
-        <a href="profile.html" class="tab-item active">
+    <nav class="tab-bar">
+        <a href="проф.html" class="tab-item">
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
             </svg>
         </a>
-        <a href="courses.html" class="tab-item">
+        <a href="кур.html" class="tab-item active"> 
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="3" y="2" width="18" height="20" rx="2" ry="2"></rect>
                 <line x1="9" y1="7" x2="15" y2="7"></line>
                 <line x1="9" y1="12" x2="15" y2="12"></line>
             </svg>
         </a>
-        <a href="index.html" class="tab-item home-button">
+        <a href="home.html" class="tab-item home-button">
             <svg class="tab-icon large-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
         </a>
-        <a href="lessons.html" class="tab-item">
+        <a href="урок.html" class="tab-item">
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
         </a>
-        <a href="rating.html" class="tab-item">
+        <a href="рейтинг.html" class="tab-item">
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-            </svg>
-        </a>
-        <a href="chat.html" class="tab-item">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
         </a>
     </nav>
-
-    <script>
-        // Простая навигация
-        document.querySelectorAll('.tab-item').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.location.href = link.getAttribute('href');
-            });
-        });
-    </script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="firebase-auth.js"></script>
+    <script src="navigation.js"></script>
 </body>
 </html>

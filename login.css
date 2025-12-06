@@ -1,0 +1,162 @@
+/* Общие стили и сброс */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Темный фон по умолчанию */
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Дополнительные свойства для фона, чтобы он занимал весь экран */
+    min-height: 100vh;
+    margin: 0;
+    
+    /* --- Эффект сияющего фона (обновленные цвета) --- */
+    background: radial-gradient(
+        circle at center,
+        #0B1E32 0%,       /* Яркий синий/темный индиго в центре */
+        #060F1B 50%,       /* Темно-синий/почти черный для плавного перехода */
+        #0b0c16 100%       /* Исходный очень темный фон по краям */
+    );
+    /* ------------------------------ */
+}
+
+/* Контейнер для центрирования содержимого */
+.container {
+    width: 100%;
+    max-width: 400px; /* Ограничение ширины для мобильного вида */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Хедер с логотипом */
+.header {
+    padding-top: 50px;
+    margin-bottom: auto; 
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* --- Стили для страницы Login (Вход) --- */
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 300px; 
+    margin: auto 0; 
+}
+
+/* Стили для формы на странице Login (смещаем контент чуть выше) */
+.login-page {
+    justify-content: flex-start; 
+}
+
+.login-title {
+    font-size: 32px;
+    font-weight: 500;
+    margin-bottom: 40px;
+    width: 100%;
+    text-align: center;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Расстояние между элементами */
+}
+
+/* Стили для полей ввода (Input) - Эффект iOS */
+.login-form input {
+    width: 100%;
+    padding: 18px 20px;
+    
+    /* Фон: Легкая полупрозрачная темно-серая заливка */
+    /* Используем очень темный цвет с низкой прозрачностью (8%) */
+    background-color: rgba(255, 255, 255, 0.08); 
+    
+    /* Размытие фона: Сильное размытие, имитирующее iOS */
+    backdrop-filter: blur(25px); 
+    
+    /* Тонкая рамка: Едва заметная граница для выделения */
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    
+    border-radius: 12px;
+    
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 500; /* Более четкий текст */
+    outline: none;
+    
+    /* Легкая внутренняя тень, как часто бывает в iOS */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), /* Внутренний блик */
+                0 4px 16px rgba(0, 0, 0, 0.2);          /* Внешняя тень */
+    
+    transition: all 0.3s ease; 
+}
+
+/* Стиль при фокусировке (когда пользователь вводит текст) */
+.login-form input:focus {
+    /* Легкое увеличение прозрачности при фокусе */
+    background-color: rgba(255, 255, 255, 0.12);
+    /* Более выраженная рамка при фокусе (можно сделать синей) */
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Стиль для плейсхолдера */
+.login-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5); 
+    font-weight: 400;
+}
+
+/* Стиль для кнопки в форме */
+.login-form .btn {
+    margin-top: 10px; /* Дополнительный отступ сверху для кнопки */
+}
+
+/* --- Общие стили для кнопок (используются в форме) --- */
+
+.btn {
+    width: 100%;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Стиль для кнопки "login" (primary) */
+.primary {
+    background-color: #5534eb; /* Яркий фиолетовый */
+    color: #ffffff;
+}
+
+.primary:hover {
+    background-color: #6a49ff;
+}
+
+/* Стиль для кнопки "secondary" (если бы она была на этой странице) */
+.secondary {
+    background-color: #1e1e3b;
+    color: #ffffff;
+}
+
+.secondary:hover {
+    background-color: #313155;
+}

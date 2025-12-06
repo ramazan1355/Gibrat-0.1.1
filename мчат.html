@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT - Чат с ментором</title>
+    <link rel="stylesheet" href="мчат.css"> 
+</head>
+<body>
+    <div class="container chat-container">
+        
+        <header class="chat-header">
+            <a href="кур.html" class="header-btn back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
+            <!-- Аватар ментора -->
+            <div class="mentor-avatar-wrap" style="position:relative; width:56px; height:56px; margin-right:10px;">
+                <img src="avatar.png" alt="Аватар" class="mentor-avatar-img" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <div id="mentor-mouth" style="position:absolute; left:50%; top:71%; width:118px; height:30px; transform:translate(-50%,-50%); border-radius:20px; background:#8b0000; opacity:0.95;"></div>
+            </div>
+
+            <div class="chat-logo-pill">
+                GIBRAT
+            </div>
+            
+            <button class="header-btn new-chat-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+        </header>
+
+        <main id="chat-messages" class="chat-messages">
+            <div class="message mentor">Здравствуйте! Я ваш ментор, чем могу помочь?</div>
+            <div class="message user">Здравствуйте! Я хотел бы узнать свой прогресс по математике.</div>
+        </main>
+    </div>
+
+    <footer class="chat-input-bar">
+        <div class="input-container">
+            
+            <input type="text" id="message-input" placeholder="Ask Anything ..." class="chat-input"> 
+            
+            <div class="input-actions">
+                <button class="action-btn plus-btn" id="attach-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                
+                <button class="action-btn icon-text-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <span>Image</span>
+                </button>
+                
+                <button class="action-btn icon-text-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>DOC</span>
+                </button>
+                
+                <button class="action-btn send-btn" id="send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="avatar.js"></script>
+    <script type="module" src="мчат.js"></script>
+</body>
+</html>

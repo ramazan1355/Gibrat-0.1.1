@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT - Регистрация</title>
+    <link rel="stylesheet" href="register.css"> 
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">GIBRAT</h1>
+        </header>
+        <main class="content register-page">
+            <h2 class="register-title">Register</h2>
+            <form id="register-form" class="register-form" onsubmit="handleRegister(event)">
+                <input type="text" id="reg-full-name" name="full-name" placeholder="full name" required>
+                <input type="email" id="reg-email" name="email" placeholder="email" required>
+                <input type="password" id="reg-password" name="password" placeholder="password" required>
+                <input type="password" id="reg-confirm-password" name="confirm-password" placeholder="confirm password" required>
+                <button type="submit" class="btn primary">sign up</button>
+                <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
+            </form>
+        </main>
+    </div>
+    <script>
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const fullName = document.getElementById('reg-full-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            
+            // Валидация паролей
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Пароль должен быть не менее 6 символов!');
+                return;
+            }
+            
+            // Сохранение в localStorage
+            localStorage.setItem('userLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userName', fullName);
+            localStorage.setItem('userData', JSON.stringify({
+                fullName: fullName,
+                email: email,
+                createdAt: new Date().toISOString()
+            }));
+            
+            // Быстрое перенаправление
+            alert('Регистрация успешна! Добро пожаловать, ' + fullName);
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

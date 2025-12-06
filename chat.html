@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT - Приветствие</title>
+    <link rel="stylesheet" href="chat.css"> 
+</head>
+<body>
+    <div class="container chat-container">
+        
+        <header class="chat-header welcome-header">
+            <a href="lessons.html" class="header-btn back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </a>
+
+            <div class="chat-logo-pill">
+                GIBRAT
+            </div>
+        </header>
+
+        <main class="chat-messages welcome-content">
+            
+            <div class="welcome-card">
+                <h2 class="welcome-text">Hi, User!</h2>
+            </div>
+            
+        </main>
+    </div>
+
+    <script>
+        // Простая навигация
+        document.querySelectorAll('.tab-item, .back-btn').forEach(link => {
+            if (link.tagName === 'A') {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = link.getAttribute('href');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT - Главная</title>
+    <link rel="stylesheet" href="вход.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">GIBRAT</h1>
+        </header>
+        <main class="content">
+            <p class="prompt">Log in to<br>the lobby or register</p>
+            <div class="actions">
+                <a href="рег.html" class="btn primary">sing up</a>
+                <a href="login.html" class="btn secondary">login</a>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Небольшой скрипт для обработки перехода, если нужно, но лучше использовать <a href>
+        document.getElementById('signup-btn')?.addEventListener('click', () => { window.location.href = 'рег.html'; });
+        document.getElementById('login-btn')?.addEventListener('click', () => { window.location.href = 'login.html'; });
+    </script>
+</body>
+</html>

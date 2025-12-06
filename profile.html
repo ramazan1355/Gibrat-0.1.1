@@ -3,26 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIBRAT - Главная</title>
-    <link rel="stylesheet" href="home.css"> 
-    </head>
+    <title>GIBRAT - Ментор/Профиль</title>
+    <link rel="stylesheet" href="profile.css"> 
+</head>
 <body>
-    <div class="container dashboard-container">
+    <div class="container dashboard-container"> 
         <header class="header">
             <h1 class="logo">GIBRAT</h1>
         </header>
 
-        <main class="dashboard-content">
-            <h2 class="news-title">Today's news</h2>
+        <main class="content profile-content">
             
-            <div class="news-card">
+            <div class="profile-card">
+                <img src="avatar.jpeg" alt="Аватар ментора" class="mentor-avatar"> 
+                <h2 class="mentor-name">AI Professor</h2>
+                <p class="mentor-email">ai.mentor@gibrat.com</p>
+            </div>
+
+            <div class="square-actions">
+                <button class="square-btn">
+                    <svg class="sq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10 13l2 2 2-2M10 11l2 2 2-2M12 2L6 8l3 10l3 4l3-4l3-10l-6-6z"/>
+                    </svg>
+                </button>
+                <button class="square-btn">
+                    <svg class="sq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="progress-card">
+                <h3 class="progress-title">прогрес по придметом</h3>
+                
+                <div class="chart-placeholder">
+                    <div class="donut-chart"></div> 
                 </div>
-            
-            </main>
+            </div>
+
+        </main>
     </div>
 
-    <nav class="tab-bar" id="main-nav">
-        <a href="profile.html" class="tab-item active">
+    <nav class="tab-bar">
+        <a href="profile.html" class="tab-item active"> 
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
@@ -49,18 +72,11 @@
         </a>
         <a href="rating.html" class="tab-item">
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-            </svg>
-        </a>
-        <a href="chat.html" class="tab-item">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
         </a>
     </nav>
-
     <script>
-        // Простая навигация
         document.querySelectorAll('.tab-item').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();

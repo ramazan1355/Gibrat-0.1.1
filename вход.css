@@ -1,0 +1,109 @@
+/* Общие стили и сброс */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Темный фон по умолчанию */
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Дополнительные свойства для фона, чтобы он занимал весь экран */
+    min-height: 100vh;
+    margin: 0;
+    
+    /* --- Эффект сияющего фона --- */
+    background: radial-gradient(
+        circle at center,
+        #0B1E32 0%,       /* Яркий синий в самом центре */
+        #060F1B 50%,       /* Темно-синий/индиго для плавного перехода */
+        #0b0c16 100%       /* Исходный очень темный фон по краям */
+    );
+    /* ------------------------------ */
+}
+
+/* Контейнер для центрирования содержимого */
+.container {
+    width: 100%;
+    max-width: 400px; /* Ограничение ширины для мобильного вида */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Чтобы хедер был наверху, а контент по центру */
+}
+
+/* Хедер с логотипом */
+.header {
+    padding-top: 50px; /* Отступ сверху, как на iPhone */
+    margin-bottom: auto; /* Сдвигает контент ниже */
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Основное содержимое */
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* Устанавливаем высоту, чтобы оно было по центру */
+    min-height: 300px; 
+    margin: auto 0; /* Центрирует блок относительно верха и низа */
+}
+
+.prompt {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 40px;
+}
+
+/* Блок с кнопками */
+.actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Расстояние между кнопками */
+}
+
+/* Стили для кнопок */
+.btn {
+    width: 100%;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Стиль для кнопки "sing up" (фиолетовая) */
+.primary {
+    background-color: #5534eb; /* Яркий фиолетовый */
+    color: #ffffff;
+}
+
+.primary:hover {
+    background-color: #6a49ff;
+}
+
+/* Стиль для кнопки "login" (темная) */
+.secondary {
+    background-color: #1e1e3b; /* Более темный фон */
+    color: #ffffff;
+}
+
+.secondary:hover {
+    background-color: #313155;
+}

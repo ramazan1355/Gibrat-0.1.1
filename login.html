@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBRAT - Вход</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">GIBRAT</h1>
+        </header>
+        <main class="content login-page">
+            <h2 class="login-title">Login</h2>
+            <form id="login-form" class="login-form">
+                <input type="email" id="email" name="email" placeholder="email" required>
+                <input type="password" id="password" name="password" placeholder="password" required>
+                <button type="button" class="btn primary" onclick="handleLogin()">login</button>
+                <p class="register-link">Don't have an account? <a href="register.html">Register here</a></p>
+            </form>
+        </main>
+    </div>
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email && password) {
+                // Простая валидация
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
