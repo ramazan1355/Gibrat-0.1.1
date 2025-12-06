@@ -5,42 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GIBRAT - Курсы</title>
     <link rel="stylesheet" href="courses.css"> 
+
+    <style>
+        /* --- Аватар --- */
+        .ai-box {
+            width: 100%;
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        #avatar-box {
+            width: 260px;
+            height: 340px;
+            margin: 0 auto 12px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #000;
+        }
+        #avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #mouth {
+            position: absolute;
+            left: 50%;
+            top: 71%;
+            width: 118px;
+            height: 29px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: 0.08s ease;
+            pointer-events: none;
+        }
+        #ai-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        #ask, #voice-btn {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            width: 48%;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <header class="header">
             <h1 class="logo">GIBRAT - Курсы</h1>
         </header>
 
+        <!-- 🔥 ИИ-АВАТАР -->
+        <div class="ai-box">
+            <div id="avatar-box">
+                <img id="avatar" src="avatar.png">
+                <div id="mouth"></div>
+            </div>
+
+            <textarea id="ai-input" placeholder="Спроси меня что угодно..."></textarea>
+            <div style="display:flex; justify-content:space-between;">
+                <button id="voice-btn">🎤 Говорить</button>
+                <button id="ask">Ответить</button>
+            </div>
+        </div>
+
         <main class="content">
-            <div class="courses-container">
-                <div class="avatar-section">
-                    <div class="avatar-container">
-                        <img src="avatar.png" alt="AI Avatar" class="avatar-image">
-                    </div>
-                    
-                    <div class="chat-box">
-                        <div class="messages" id="messages">
-                            <div class="message bot-message">
-                                <p>Привет! Я помогу тебе выбрать курс 📚</p>
-                            </div>
-                        </div>
-                        
-                        <div class="input-area">
-                            <input type="text" id="userInput" placeholder="Спроси что-нибудь..." class="message-input">
-                            <button id="sendBtn" class="send-button">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="courses-list" id="courses-list">
-                    <!-- Курсы загружаются здесь -->
-                </div>
+            <div class="courses-list" id="courses-list">
+                <!-- Курсы загружаются здесь -->
             </div>
         </main>
     </div>
@@ -77,8 +121,8 @@
             </svg>
         </a>
     </nav>
+
     <script>
-        // Навигация
         document.querySelectorAll('.tab-item').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -86,92 +130,89 @@
             });
         });
 
-        // Функция отправки сообщения
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const messagesContainer = document.getElementById('messages');
-        const coursesList = document.getElementById('courses-list');
+        /* ============================
+            МОДУЛЬ ИИ-АВАТАРА
+        ============================ */
 
-        // Примеры курсов
-        const courses = [
-            { id: 1, title: 'Python Базы', level: 'Начинающий', duration: '4 недели' },
-            { id: 2, title: 'JavaScript Мастер', level: 'Средний', duration: '6 недель' },
-            { id: 3, title: 'React для профи', level: 'Продвинутый', duration: '8 недель' },
-            { id: 4, title: 'AI & Machine Learning', level: 'Продвинутый', duration: '10 недель' }
-        ];
+        const API_KEY = "sk-e0cec48a37bc4588961174b33ce3d385"; 
+        const API_URL = "https://api.deepseek.com/chat/completions";
 
-        function addMessage(text, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = `<p>${text}</p>`;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        const mouth = document.getElementById("mouth");
+
+        function mouthMove(level = 1) {
+            mouth.style.height = (29 * (1 + level)) + "px";
+            mouth.style.transform = `translate(-50%,-50%) scale(1, ${1 + level})`;
+        }
+        function mouthClose() {
+            mouth.style.height = "29px";
+            mouth.style.transform = "translate(-50%, -50%) scale(1,1)";
         }
 
-        function showCourses(filter = null) {
-            coursesList.innerHTML = '';
-            const filtered = filter ? courses.filter(c => c.title.toLowerCase().includes(filter.toLowerCase())) : courses;
-            
-            filtered.forEach(course => {
-                const courseCard = document.createElement('div');
-                courseCard.className = 'course-card';
-                courseCard.innerHTML = `
-                    <h3>${course.title}</h3>
-                    <p class="level">Уровень: ${course.level}</p>
-                    <p class="duration">⏱️ ${course.duration}</p>
-                    <button class="enroll-btn" onclick="enrollCourse('${course.title}')">Записаться</button>
-                `;
-                coursesList.appendChild(courseCard);
+        /* ---------- ГОЛОС ---------- */
+        function speak(text) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = "ru-RU";
+
+            let male = speechSynthesis.getVoices().find(v =>
+                v.lang === "ru-RU" && (v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("yuri"))
+            );
+            if (male) u.voice = male;
+
+            u.onboundary = () => {
+                mouthMove(Math.random() * 0.6 + 0.3);
+                setTimeout(() => mouthClose(), 80);
+            };
+
+            speechSynthesis.speak(u);
+        }
+
+        /* ---------- ИИ РЕСПОНС ---------- */
+        async function askAI(q) {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "deepseek-chat",
+                    messages: [
+                        { role: "system", content: "Ты — умный российский научный ассистент. Отвечай глубоко, умно, структурированно." },
+                        { role: "user", content: q }
+                    ]
+                })
             });
+
+            const data = await res.json();
+            return data.choices[0].message.content;
         }
 
-        window.enrollCourse = function(courseName) {
-            addMessage(`Я выбрал(а) ${courseName} 👍`, true);
-            setTimeout(() => {
-                addMessage(`Отлично! Курс добавлен в твой список. Начинай учиться! 🚀`, false);
-            }, 500);
+        document.getElementById("ask").onclick = async () => {
+            const txt = document.getElementById("ai-input").value;
+            if (!txt) return;
+
+            const answer = await askAI(txt);
+            speak(answer);
         };
 
-        function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
+        /* ---------- ГОЛОСОВОЙ ВВОД ---------- */
+        const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let rec = null;
 
-            addMessage(text, true);
-            userInput.value = '';
+        if (R) {
+            rec = new R();
+            rec.lang = "ru-RU";
 
-            setTimeout(() => {
-                const lowerText = text.toLowerCase();
-                let response = 'Интересно! 😊';
-                
-                if (lowerText.includes('курс') || lowerText.includes('обучение')) {
-                    response = 'Вот доступные курсы! Выбери понравившийся 👇';
-                    showCourses();
-                } else if (lowerText.includes('python') || lowerText.includes('javascript')) {
-                    response = 'Отличный выбор! Это популярные языки программирования 💻';
-                    showCourses(text);
-                } else if (lowerText.includes('какой') || lowerText.includes('рекомендуешь')) {
-                    response = 'Рекомендую начать с Python, если ты новичок! Это просто и мощно 🐍';
-                    showCourses();
-                } else {
-                    const responses = [
-                        'Интересно! Расскажи подробнее 🤔',
-                        'Согласна! Это отличная идея 💡',
-                        'Как я могу помочь? 😊'
-                    ];
-                    response = responses[Math.floor(Math.random() * responses.length)];
-                }
-                
-                addMessage(response, false);
-            }, 500);
+            rec.onresult = async (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById("ai-input").value = text;
+
+                const answer = await askAI(text);
+                speak(answer);
+            };
         }
 
-        sendBtn.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        // Показать курсы при загрузке
-        showCourses();
+        document.getElementById("voice-btn").onclick = () => rec && rec.start();
     </script>
 </body>
 </html>
