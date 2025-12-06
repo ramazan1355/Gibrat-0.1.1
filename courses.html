@@ -13,8 +13,34 @@
         </header>
 
         <main class="content">
-            <div class="courses-list" id="courses-list">
-                <!-- Курсы загружаются здесь -->
+            <div class="courses-container">
+                <div class="avatar-section">
+                    <div class="avatar-container">
+                        <img src="avatar.png" alt="AI Avatar" class="avatar-image">
+                    </div>
+                    
+                    <div class="chat-box">
+                        <div class="messages" id="messages">
+                            <div class="message bot-message">
+                                <p>Привет! Я помогу тебе выбрать курс 📚</p>
+                            </div>
+                        </div>
+                        
+                        <div class="input-area">
+                            <input type="text" id="userInput" placeholder="Спроси что-нибудь..." class="message-input">
+                            <button id="sendBtn" class="send-button">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="courses-list" id="courses-list">
+                    <!-- Курсы загружаются здесь -->
+                </div>
             </div>
         </main>
     </div>
@@ -52,12 +78,100 @@
         </a>
     </nav>
     <script>
+        // Навигация
         document.querySelectorAll('.tab-item').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 window.location.href = link.getAttribute('href');
             });
         });
+
+        // Функция отправки сообщения
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesContainer = document.getElementById('messages');
+        const coursesList = document.getElementById('courses-list');
+
+        // Примеры курсов
+        const courses = [
+            { id: 1, title: 'Python Базы', level: 'Начинающий', duration: '4 недели' },
+            { id: 2, title: 'JavaScript Мастер', level: 'Средний', duration: '6 недель' },
+            { id: 3, title: 'React для профи', level: 'Продвинутый', duration: '8 недель' },
+            { id: 4, title: 'AI & Machine Learning', level: 'Продвинутый', duration: '10 недель' }
+        ];
+
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = `<p>${text}</p>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showCourses(filter = null) {
+            coursesList.innerHTML = '';
+            const filtered = filter ? courses.filter(c => c.title.toLowerCase().includes(filter.toLowerCase())) : courses;
+            
+            filtered.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                courseCard.innerHTML = `
+                    <h3>${course.title}</h3>
+                    <p class="level">Уровень: ${course.level}</p>
+                    <p class="duration">⏱️ ${course.duration}</p>
+                    <button class="enroll-btn" onclick="enrollCourse('${course.title}')">Записаться</button>
+                `;
+                coursesList.appendChild(courseCard);
+            });
+        }
+
+        window.enrollCourse = function(courseName) {
+            addMessage(`Я выбрал(а) ${courseName} 👍`, true);
+            setTimeout(() => {
+                addMessage(`Отлично! Курс добавлен в твой список. Начинай учиться! 🚀`, false);
+            }, 500);
+        };
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            userInput.value = '';
+
+            setTimeout(() => {
+                const lowerText = text.toLowerCase();
+                let response = 'Интересно! 😊';
+                
+                if (lowerText.includes('курс') || lowerText.includes('обучение')) {
+                    response = 'Вот доступные курсы! Выбери понравившийся 👇';
+                    showCourses();
+                } else if (lowerText.includes('python') || lowerText.includes('javascript')) {
+                    response = 'Отличный выбор! Это популярные языки программирования 💻';
+                    showCourses(text);
+                } else if (lowerText.includes('какой') || lowerText.includes('рекомендуешь')) {
+                    response = 'Рекомендую начать с Python, если ты новичок! Это просто и мощно 🐍';
+                    showCourses();
+                } else {
+                    const responses = [
+                        'Интересно! Расскажи подробнее 🤔',
+                        'Согласна! Это отличная идея 💡',
+                        'Как я могу помочь? 😊'
+                    ];
+                    response = responses[Math.floor(Math.random() * responses.length)];
+                }
+                
+                addMessage(response, false);
+            }, 500);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Показать курсы при загрузке
+        showCourses();
     </script>
 </body>
 </html>
