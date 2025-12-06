@@ -3,88 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIBRAT - Курсы</title>
+    <title>GIBRAT - Курсы с ИИ Аватаром</title>
     <link rel="stylesheet" href="courses.css"> 
-
-    <style>
-        /* --- Аватар --- */
-        .ai-box {
-            width: 100%;
-            background: #fff;
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-            text-align: center;
-        }
-        #avatar-box {
-            width: 260px;
-            height: 340px;
-            margin: 0 auto 12px auto;
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: #000;
-        }
-        #avatar {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #mouth {
-            position: absolute;
-            left: 50%;
-            top: 71%;
-            width: 118px;
-            height: 29px;
-            background: rgba(0,0,0,0.8);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: 0.08s ease;
-            pointer-events: none;
-        }
-        #ai-input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-        #ask, #voice-btn {
-            margin-top: 10px;
-            padding: 10px 14px;
-            border: none;
-            border-radius: 10px;
-            background: #2563eb;
-            color: white;
-            width: 48%;
-        }
-    </style>
 </head>
-
 <body>
     <div class="container">
         <header class="header">
             <h1 class="logo">GIBRAT - Курсы</h1>
         </header>
 
-        <!-- 🔥 ИИ-АВАТАР -->
-        <div class="ai-box">
-            <div id="avatar-box">
-                <img id="avatar" src="avatar.png">
-                <div id="mouth"></div>
-            </div>
-
-            <textarea id="ai-input" placeholder="Спроси меня что угодно..."></textarea>
-            <div style="display:flex; justify-content:space-between;">
-                <button id="voice-btn">🎤 Говорить</button>
-                <button id="ask">Ответить</button>
-            </div>
-        </div>
-
         <main class="content">
             <div class="courses-list" id="courses-list">
                 <!-- Курсы загружаются здесь -->
+            </div>
+
+            <!-- ====== Блок ИИ Аватара ====== -->
+            <div class="avatar-section" style="margin-top: 40px; text-align:center;">
+                <img id="avatar" src="avatar.png" alt="Аватар" style="width: 200px; border-radius: 50%; margin-bottom: 20px;">
+                <textarea id="user-text" placeholder="Задайте вопрос..." rows="4" style="width:100%; border-radius:12px; padding:10px;"></textarea>
+                <div style="margin-top: 15px; display:flex; gap:10px; justify-content:center;">
+                    <button id="ask-btn" class="btn primary">Задать вопрос</button>
+                    <button id="listen-btn" class="btn secondary">Слушать</button>
+                </div>
+                <div id="avatar-response" style="margin-top:20px; font-size:18px; color:#fff;"></div>
             </div>
         </main>
     </div>
@@ -123,6 +64,7 @@
     </nav>
 
     <script>
+        // Навигация вкладок
         document.querySelectorAll('.tab-item').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -130,89 +72,90 @@
             });
         });
 
-        /* ============================
-            МОДУЛЬ ИИ-АВАТАРА
-        ============================ */
+        const askBtn = document.getElementById('ask-btn');
+        const listenBtn = document.getElementById('listen-btn');
+        const userText = document.getElementById('user-text');
+        const avatarResponse = document.getElementById('avatar-response');
 
-        const API_KEY = "sk-e0cec48a37bc4588961174b33ce3d385"; 
-        const API_URL = "https://api.deepseek.com/chat/completions";
+        // ====== Функция запроса к ИИ и воспроизведения ответа ======
+        async function askAI(text){
+            avatarResponse.textContent = "Обработка...";
 
-        const mouth = document.getElementById("mouth");
+            try {
+                // --- 1. Получаем ответ ИИ ---
+                const response = await fetch('https://api.deepbrain.io/ask', { // замените на реальный URL API
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'sk-e0cec48a37bc4588961174b33ce3d385'
+                    },
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+                const data = await response.json();
 
-        function mouthMove(level = 1) {
-            mouth.style.height = (29 * (1 + level)) + "px";
-            mouth.style.transform = `translate(-50%,-50%) scale(1, ${1 + level})`;
+                const answer = data.answer || "Извините, я не знаю ответа на этот вопрос.";
+                avatarResponse.textContent = answer;
+
+                // --- 2. Синтез речи ---
+                const speechResp = await fetch('https://api.deepbrain.io/speak', { // замените на реальный URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_API_KEY'
+                    },
+                    body: JSON.stringify({
+                        text: answer,
+                        voice: 'male',
+                        avatar: 'avatar.png'
+                    })
+                });
+                const speechData = await speechResp.json();
+
+                if(speechData.audio_url){
+                    const audio = new Audio(speechData.audio_url);
+                    audio.play();
+                }
+
+            } catch(err){
+                console.error(err);
+                avatarResponse.textContent = "Ошибка при обработке запроса";
+            }
         }
-        function mouthClose() {
-            mouth.style.height = "29px";
-            mouth.style.transform = "translate(-50%, -50%) scale(1,1)";
-        }
 
-        /* ---------- ГОЛОС ---------- */
-        function speak(text) {
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = "ru-RU";
+        // ====== Обработчик кнопки "Задать вопрос" ======
+        askBtn.addEventListener('click', () => {
+            const text = userText.value.trim();
+            if(!text) return alert("Введите вопрос");
+            askAI(text);
+        });
 
-            let male = speechSynthesis.getVoices().find(v =>
-                v.lang === "ru-RU" && (v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("yuri"))
-            );
-            if (male) u.voice = male;
+        // ====== Распознавание речи ======
+        listenBtn.addEventListener('click', () => {
+            if(!('webkitSpeechRecognition' in window)){
+                alert('Ваш браузер не поддерживает распознавание речи');
+                return;
+            }
 
-            u.onboundary = () => {
-                mouthMove(Math.random() * 0.6 + 0.3);
-                setTimeout(() => mouthClose(), 80);
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userText.value = transcript;
+                askAI(transcript);
             };
 
-            speechSynthesis.speak(u);
-        }
-
-        /* ---------- ИИ РЕСПОНС ---------- */
-        async function askAI(q) {
-            const res = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "deepseek-chat",
-                    messages: [
-                        { role: "system", content: "Ты — умный российский научный ассистент. Отвечай глубоко, умно, структурированно." },
-                        { role: "user", content: q }
-                    ]
-                })
-            });
-
-            const data = await res.json();
-            return data.choices[0].message.content;
-        }
-
-        document.getElementById("ask").onclick = async () => {
-            const txt = document.getElementById("ai-input").value;
-            if (!txt) return;
-
-            const answer = await askAI(txt);
-            speak(answer);
-        };
-
-        /* ---------- ГОЛОСОВОЙ ВВОД ---------- */
-        const R = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let rec = null;
-
-        if (R) {
-            rec = new R();
-            rec.lang = "ru-RU";
-
-            rec.onresult = async (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById("ai-input").value = text;
-
-                const answer = await askAI(text);
-                speak(answer);
+            recognition.onerror = (event) => {
+                console.error(event.error);
+                alert("Ошибка распознавания речи");
             };
-        }
-
-        document.getElementById("voice-btn").onclick = () => rec && rec.start();
+        });
     </script>
 </body>
 </html>
